@@ -2,19 +2,19 @@ probabilities = {}
 import sys
 def propogation(UCQ, quantifier, sep, list_of_separator_variables):
     common_table,sep_table_list = find_Common_Table(list_of_separator_variables) # tables whose probabilities can be substituted directly
-    remove=[]
-    for i in range(0,len(UCQ)):  # to track which common table names need to be removed from each conjunctive query
-        subremove = []
-        for table in UCQ[i]:
-            if table in common_table:
-                subremove.append(table)
-        remove.append(subremove)
-    for i in range(0,len(remove)):# remove common table names from each conjunctive query
-        for j in remove[i]:
-            del UCQ[i][j]
-            if (len(UCQ[i]) == 0):
-                UCQ.remove(UCQ[i])
-                i -= 1
+    #remove=[]
+    #for i in range(0,len(UCQ)):  # to track which common table names need to be removed from each conjunctive query
+        #subremove = []
+        #for table in UCQ[i]:
+            #if table in common_table:
+                #subremove.append(table)
+        #remove.append(subremove)
+    #for i in range(0,len(remove)):# remove common table names from each conjunctive query
+        #for j in remove[i]:
+            #del UCQ[i][j]
+            #if (len(UCQ[i]) == 0):
+                #UCQ.remove(UCQ[i])
+                #i -= 1
     return UCQ, quantifier, common_table,sep_table_list
 
 
@@ -43,7 +43,7 @@ def find_Common_Table(list_of_separator_variables):  # find tables whose probabi
                         continue
                     else:
                         append = False
-                if (append==True and table_name not in common_table and len(common_table)<=0):
+                if (append==True and table_name not in common_table):
                     common_table.add(table_name)
                     sep_table_list[table_name] = UCQ[i].get(table_name)
     return (common_table,sep_table_list)
@@ -154,13 +154,12 @@ def probability(UCQ, quantifiers, tables):
         sep = (find_Separator(UCQ, quantifiers))
         list_of_separator_variables = []
         list_of_separator_variables.append(sep)
-        print(quantifiers)
         if sep is None:
             print("No separator variable found")
         else:
             UCQ, quantifiers, common_table,sep_table_list = propogation(UCQ, quantifiers, sep, list_of_separator_variables)
-            if(len(UCQ)==0):
-                return(1-getProbability(sep_table_list))
+            print(UCQ)
+            return(1-getProbability(sep_table_list))
 
         # decomposable disjunction
         #if isUCQ(UCQ):
@@ -205,8 +204,11 @@ def parse_UCQ(input_query):
 
 input_query = "S(x)"
 UCQ, quantifier, tables = parse_UCQ(input_query)
+probabilities = {'S': [0.8, 0.2, 0.1],'R':[0.9,0.2,0.6]}
 
-probabilities = {'S': [0.8, 0.2, 0.1]}
 print(probability(UCQ, quantifier, tables))
+
+
+
 
 
