@@ -20,18 +20,20 @@ def propogation(UCQ, quantifier, sep, list_of_separator_variables):
 
 def find_Common_Table(list_of_separator_variables):  # find tables whose probabilities can be substituted directly
     intersection=True
+    common_table=set()
     sep_table_list={} #To store those tables' information that are being removed from UCQ
-    common_table = tables[0]
-    # Check intersection of all CQs
-    for i in range(1, len(tables)):
-        common_table = common_table.intersection(tables[i])
-    if(len(common_table) == 0):
-        intersection=False;
-    if(intersection==True):
-        for t in common_table:
-            sep_table_list[t] = UCQ[0].get(t)
-    # If intersection is a null set find a table with separator variable
-    if(intersection==False):
+    # Check intersection of all CQs only if number of CQs is > 1
+    if(len(tables)>1):
+        common_table = tables[0]
+        for i in range(1, len(tables)):
+            common_table = common_table.intersection(tables[i])
+        if(len(common_table) == 0):
+            intersection=False;
+        if(intersection==True):
+            for t in common_table:
+                sep_table_list[t] = UCQ[0].get(t)
+    # If intersection is a null set or number of CQs is 1 then find a table with separator variable
+    if(intersection==False or len(tables)==1):
         for i in range(0, len(UCQ)):
             for table_name in tables[i]:
                 append = True
@@ -41,7 +43,7 @@ def find_Common_Table(list_of_separator_variables):  # find tables whose probabi
                         continue
                     else:
                         append = False
-                if (append and table_name not in common_table and len(common_table)<=0):
+                if (append==True and table_name not in common_table and len(common_table)<=0):
                     common_table.add(table_name)
                     sep_table_list[table_name] = UCQ[i].get(table_name)
     return (common_table,sep_table_list)
