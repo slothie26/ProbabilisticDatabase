@@ -137,45 +137,29 @@ def getProbability(sep_table_list):
         ans=ans*(1-term)
     return ans
 
+def allConstantParameters(subUCQ): #checks if all variables are numbers and not characters
+    for x in subUCQ[var]:
+        if(x.isdigit()==False):
+            return False
+    return True
 
 def probability(UCQ, quantifiers, tables):
-    # Base of recursion
-    if len(UCQ) == 1 and len(UCQ[0]) == 1:
-        if (no_existential_quantifier(UCQ[0][list(UCQ[0].keys())[0]], quantifiers)):
-            print("CASE1")
-            return getProbability(UCQ[0])
-        else:
-            print("CASE2")
-            quantifiers = update_quantifiers(UCQ[0][list(UCQ[0].keys())[0]], quantifiers)
-            UCQ[0][list(UCQ[0].keys())[0]]["negation"] = True
-            return 1 - probability(UCQ, quantifiers, tables)
-    else:
-        print("CASE3- more than one table")
-        sep = (find_Separator(UCQ, quantifiers))
-        list_of_separator_variables = []
-        list_of_separator_variables.append(sep)
-        print(quantifiers)
-        if sep is None:
-            print("No separator variable found")
-        else:
-            print("seperators found")
-            UCQ, quantifiers, common_table,sep_table_list = propogation(UCQ, quantifiers, sep, list_of_separator_variables)
-            print(UCQ, quantifiers, common_table, sep_table_list)
-            return(1-getProbability(sep_table_list))
-
-        # decomposable disjunction
-        #if isUCQ(UCQ):
-         #   print()
-            #if check_Independence_UCQ(tables):
-            #         val1 = 1 - probability(UCQ[0], quantifier, tables)
-            #         val2 = 1 - probability(UCQ[1], quantifier, tables)
-            #         return 1 - val1 * val2
-            # # decomposable conjunction
-            #elif check_Independence_CQ(UCQ):
-                #val1 = probability(UCQ[0], quantifier, tables)
-                #val2 = probability(UCQ[0], quantifier, tables)
-                #return val1 * val2
-        return -1
+    #Base of recursion
+    if(len(UCQ)==1 and len(UCQ[0])==1 and allConstantParameters(UCQ[0][list(UCQ[0].keys())[0]])): #is a ground atom
+        return p = getProb(UCQ[0][list(UCQ[0].keys())[0]])#checks if the given constant values are present in the given tables, if present return probability, else returns 0
+    #convert to ucnf
+    if(len(UCQ)==2 and isIndependentUCQ(UCQ)): #both cq are independent of each other
+        return 1 - ((1 - probability(UCQ[0]))*(1- probability(UCQ[1])))
+    if(allIndependentUCQ(UCQ)): #check fi all cq are independent 
+        sum = 0
+        for 
+        #not sure how to translate this formula. what is m? why have they sued subset and not belongs
+    if(len(UCQ)==0 and isIndependentCQ(UCQ[0])):
+        return probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[0]]])* probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[1]]])
+    sep = (find_Separator(UCQ, quantifiers))
+    if(sep is not None):
+        #translate algo
+    return -1
 def parse_UCQ(input_query):
     UCQ = []
     quantifier = {}
@@ -195,6 +179,7 @@ def parse_UCQ(input_query):
             temp_dict["var"] = q[1].strip("").replace(")", "").split(
                 ",")  # remove spaces, remove the ) at the endd, and split by comma to get a list of variables
             temp_dict["negation"] = False
+            temp_dict["const"] = False
             temp_tables.add(q[0])
             for var in temp_dict["var"]:  # set the quantifier value as existential for all variables
                 quantifier[var] = 1
