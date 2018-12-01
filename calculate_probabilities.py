@@ -132,10 +132,7 @@ def getProbability(sep_table_list):
                 term=term*probabilities[k][i]
             else:
                 term=term*(1-probabilities[k][i])
-        if(len(sep_table_list)==1):
-            ans=ans*term
-        else:
-            ans=ans*(1-term)
+        ans=ans*(1-term)
     return ans
 
 
