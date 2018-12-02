@@ -139,7 +139,7 @@ def getProbability(sep_table_list):
 
 
 def probability(UCQ, quantifiers, tables):
-    # Base of recursion
+    #Base of recursion
     if len(UCQ) == 1 and len(UCQ[0]) == 1:
         if (no_existential_quantifier(UCQ[0][list(UCQ[0].keys())[0]], quantifiers)):
             print("CASE1")
@@ -206,6 +206,7 @@ def parse_UCQ(input_query):
 
 input_query = "S(x),R(x,y)"
 UCQ, quantifier, tables = parse_UCQ(input_query)
+print(UCQ)
 probabilities = {'S':[0.8,0.2,0.3], 'R':[0.3,0.4,0.9]}
 #probabilities = {'S': [[[0,1],0.8],[[1,0],0.2], [[0,0],0.3]], 'R':[[[0,1],0.3],[[1,0],0.4],[[0,0],0.9]]}
 print(probability(UCQ, quantifier, tables))

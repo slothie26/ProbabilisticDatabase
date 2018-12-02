@@ -76,12 +76,15 @@ def check_Independence_CQ(cq):  # check independence within a CQ
     return True
 
 
-def check_Independence_UCQ(tables):  # Check independence across entire UCQ, i.e. no repeating table names
+def check_Independence_UCQ(UCQ):  # Check independence across entire UCQ, i.e. no repeating table names
     temp = set()
-    for cq in range(0, len(tables)):
-        if not temp.isdisjoint(tables[cq]):
-            return False
-        temp = temp | tables[cq]
+    for cq in range(len(UCQ)):
+        for k in cq.keys():
+            if k in temp:
+                return False
+            else:
+                return True
+        
     return True
 
 
@@ -138,7 +141,7 @@ def getProbability(sep_table_list):
     return ans
 
 def allConstantParameters(subUCQ): #checks if all variables are numbers and not characters
-    for x in subUCQ[var]:
+    for x in subUCQ["var"]:
         if(x.isdigit()==False):
             return False
     return True
@@ -146,19 +149,24 @@ def allConstantParameters(subUCQ): #checks if all variables are numbers and not 
 def probability(UCQ, quantifiers, tables):
     #Base of recursion
     if(len(UCQ)==1 and len(UCQ[0])==1 and allConstantParameters(UCQ[0][list(UCQ[0].keys())[0]])): #is a ground atom
-        return p = getProb(UCQ[0][list(UCQ[0].keys())[0]])#checks if the given constant values are present in the given tables, if present return probability, else returns 0
+        print("CASE1")
+        return getProb(UCQ[0][list(UCQ[0].keys())[0]]) #checks if the given constant values are present in the given tables, if present return probability, else returns 0
     #convert to ucnf
-    if(len(UCQ)==2 and isIndependentUCQ(UCQ)): #both cq are independent of each other
+    if(len(UCQ)==2 and check_Independence_UCQ(UCQ)): #both cq are independent of each other
+        print("CASE2")
         return 1 - ((1 - probability(UCQ[0]))*(1- probability(UCQ[1])))
-    if(allIndependentUCQ(UCQ)): #check fi all cq are independent 
+    if(check_Independence_UCQ(UCQ)): #check fi all cq are independent 
+        print("CASE3")
         sum = 0
-        for 
+        return -2
         #not sure how to translate this formula. what is m? why have they sued subset and not belongs
-    if(len(UCQ)==0 and isIndependentCQ(UCQ[0])):
+    if(len(UCQ)==0 and check_Independence_CQ(UCQ[0])):
+        print("CASE4")
         return probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[0]]])* probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[1]]])
     sep = (find_Separator(UCQ, quantifiers))
     if(sep is not None):
         #translate algo
+        return -3
     return -1
 def parse_UCQ(input_query):
     UCQ = []
@@ -189,8 +197,9 @@ def parse_UCQ(input_query):
     return UCQ, quantifier, tables
 
 
-input_query = "S(x),R(x,y)"
+input_query = "S(x)"
 UCQ, quantifier, tables = parse_UCQ(input_query)
+print(UCQ)
 probabilities = {'S':[0.8,0.2,0.3], 'R':[0.3,0.4,0.9]}
 #probabilities = {'S': [[[0,1],0.8],[[1,0],0.2], [[0,0],0.3]], 'R':[[[0,1],0.3],[[1,0],0.4],[[0,0],0.9]]}
 print(probability(UCQ, quantifier, tables))
