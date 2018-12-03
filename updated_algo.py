@@ -169,11 +169,12 @@ def probability(UCQ, quantifiers, tables):
         return probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[0]]]) * probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[1]]])
     sep = (find_Separator(UCQ, quantifiers))
     if (sep is not None):
-        list_of_separator_variables=[]
-        list_of_separator_variables.append(sep)
-        UCQ,quantifiers,common_table,sep_table_list=propogation(UCQ, quantifiers, sep, list_of_separator_variables)
-        print(getProbability(UCQ,sep_table_list,quantifiers,sep,tables))
-        return -3
+        Pr = 0.0
+        possible_seperator_values = get_possible_values_for_seperator(sep)
+        for fp in possible_seperator_values:
+            Pr*= probability(substitute(fp,UCQ))
+        return Pr
+
     return -1
 def parse_UCQ(input_query):
     UCQ = []
