@@ -176,6 +176,14 @@ def probability(UCQ, quantifiers, tables):
         return Pr
 
     return -1
+def get_domain(probabilities):
+    domain = set()
+    for table_name,tuples in probabilities.items():
+        for my_tuple in tuples:
+            for my_input in my_tuple[0]:
+                if(my_input not in domain):
+                    domain.add(my_input)
+    return domain
 def parse_UCQ(input_query):
     UCQ = []
     quantifier = {}
@@ -205,9 +213,12 @@ def parse_UCQ(input_query):
     return UCQ, quantifier, tables
 input_query = "S(x),R(x,y)"
 UCQ,quantifier,tables = parse_UCQ(input_query)
-probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
-#probabilities = {'S': [[[0,1],0.8],[[1,0],0.2], [[0,0],0.3]], 'R':[[[0,1],0.3],[[1,0],0.4],[[0,0],0.9]]}
+#probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
+probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
+domain = get_domain(probabilities)
+print("domain",domain)
 print(probability(UCQ, quantifier, tables))
+
 
 # 1 - 0.09 = 0.91
 # 1 - 0.08 = 0.92
