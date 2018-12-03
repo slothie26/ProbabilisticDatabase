@@ -11,7 +11,8 @@ def propogation(UCQ, quantifier, sep, list_of_separator_variables):
     #if table in common_table:
     #subremove.append(table)
     #remove.append(subremove)
-    # for i in range(0,len(remove)):# remove common table names from each conjunctive query
+    # for i in range(0,len(remove)):
+    # remove common table names from each conjunctive query
     # for j in remove[i]:
     # del UCQ[i][j]
     # if (len(UCQ[i]) == 0):
@@ -127,7 +128,6 @@ def getProbability(UCQ,sep_table_list,quantifiers,sep,tables):
         UCQ1=copy.deepcopy(UCQ)
         for cq in UCQ1:
             for t in cq.keys():
-                cq[t]["const"]=True
                 temp=cq[t]["var"]
                 for s in temp:
                     if(sep==s):
@@ -135,9 +135,9 @@ def getProbability(UCQ,sep_table_list,quantifiers,sep,tables):
         # Iterating through each table for a row
         for k in sep_table_list:
             if (sep_table_list[k]["negation"] == False):
-                term = term * probabilities[k][i]*probability(UCQ1,quantifiers,tables)
+                term = term * probability(UCQ1,quantifiers,tables)
             else:
-                term = term * (1 - (probabilities[k][i])*probability(UCQ1,quantifiers,tables))
+                term = term *(1 - probability(UCQ1,quantifiers,tables))
         ans = ans * (1 - term)
     return ans
 
