@@ -114,32 +114,21 @@ def isUCQ(UCQ):
     elif type(UCQ) is dict:
         return False
 
-def getProbability(UCQ,sep_table_list,quantifiers,sep,tables):
-    print("getProbability", sep_table_list)
-    print(probabilities)
-    length = sys.maxsize
-    for k in sep_table_list:
-        length = min(length, len(probabilities[k]))  # To check the minimum no. of rows across all tables
-    ans = 1
-    # Iterating through each row
-    for i in range(length):
-        term = 1
-        #Substitute value of constant in each table's var list in place of sep variable
-        UCQ1=copy.deepcopy(UCQ)
-        for cq in UCQ1:
-            for t in cq.keys():
-                temp=cq[t]["var"]
-                for s in temp:
-                    if(sep==s):
-                        temp[temp.index(s)]=str(i)
-        # Iterating through each table for a row
-        for k in sep_table_list:
-            if (sep_table_list[k]["negation"] == False):
-                term = term * probability(UCQ1,quantifiers,tables)
-            else:
-                term = term *(1 - probability(UCQ1,quantifiers,tables))
-        ans = ans * (1 - term)
-    return ans
+def getProbability(UCQ):
+    given_table_name =list(UCQ[0].keys())[0]
+    constant_values = set(UCQ[0][list(UCQ[0].keys())[0]]["var"])
+    flag = True
+    for table_name,tuples in probabilities.items():
+        if(table_name == given_table_name):
+            for my_tuple in tuples:
+                flag = True
+                for my_input in constant_values:
+                    if(my_input not in my_tuple[0]):
+                        flag = False
+                if(flag == True):
+                    return my_tuple[1]
+                    
+
 
 def allConstantParameters(subUCQ):  # checks if all variables are numbers and not characters
     for x in subUCQ["var"]:
@@ -153,7 +142,7 @@ def probability(UCQ, quantifiers, tables):
     # Base of recursion
     if (len(UCQ) == 1 and len(UCQ[0]) ==1 and allConstantParameters(UCQ[0][list(UCQ[0].keys())[0]])):  # is a ground atom
         print("CASE1")
-        return getProbability(UCQ,UCQ[0][list(UCQ[0].keys())[0]],quantifiers,sep,tables)# checks if the given constant values are present in the given tables, if present return probability, else returns 0
+        return getProbability(UCQ)# checks if the given constant values are present in the given tables, if present return probability, else returns 0
     # convert to ucnf
     if (len(UCQ) == 2 and check_Independence_UCQ(UCQ)):  # both cq are independent of each other
         print("CASE2")
@@ -173,7 +162,6 @@ def probability(UCQ, quantifiers, tables):
         for d in domain:
             Pr*= probability(substitute(d,UCQ))
         return Pr
-
     return -1
 def get_domain(probabilities):
     domain = set()
@@ -216,6 +204,8 @@ UCQ,quantifier,tables = parse_UCQ(input_query)
 probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
 domain = get_domain(probabilities)
 print("domain",domain)
+temp = [{'R': {'var': [0,1], 'negation': False, 'const': False}}]
+print("geprob", getProbability(temp)) #testing
 print(probability(UCQ, quantifier, tables))
 
 
@@ -225,8 +215,8 @@ print(probability(UCQ, quantifier, tables))
 # 0.636
 # 1- 0.636 = 0.364
 #substitute - vaishnavi
-#get_possible_values_for_seperator - vidhu
-#get probability - vidhu
+#get_possible_values_for_seperator - vidhu - DONE
+#get probability - vidhu - DONE
 #initially convert all existential of universal
 #conversion to ucnf
 #checkindependence updation - vaishnavi
