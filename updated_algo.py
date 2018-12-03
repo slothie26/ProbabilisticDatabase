@@ -69,13 +69,19 @@ def find_Separator(UCQ, quantifier):  # find separator for entire UCQ
         
 def substitute(fp,UCQ,sep):
     UCQ1 = copy.deepcopy(UCQ)
-    for cq in UCQ1:
-        for t in cq.keys():
-            temp = cq[t]["var"]
-            for s in temp:
-                if (sep == s):
-                    temp[temp.index(s)] = str(fp)
-    return UCQ1
+    for cq in range (0,len(UCQ1)):
+        for t in UCQ1[cq].keys():
+            constant = True
+            temp = UCQ1[cq][t]["var"]
+            for i in range (0,len(temp)):
+                if (sep == temp[i]):
+                    temp[i] = str(fp)
+                if(temp[i].isalpha()):
+                    constant=False
+            if(constant==True):
+                UCQ1[cq][t]["const"]=True
+                UCQ[cq][t]["const"]=True
+    return UCQ1,UCQ
 
 def check_Independence_CQ(cq):  # check independence within a CQ
     tables = set()
@@ -173,7 +179,8 @@ def probability(UCQ, quantifiers, tables):
     if (sep is not None):
         Pr = 0.0
         for d in domain:
-            Pr*= probability(substitute(d,UCQ,sep))
+            UCQ1,UCQ=substitute(d,UCQ,sep)
+            Pr*= probability(UCQ1)
         return Pr
     return -1
 def get_domain(probabilities):
@@ -230,7 +237,7 @@ print(probability(UCQ, quantifier, tables))
 #Inclusion Exclusion- Split into Q1,Q2 -Vaishnavi / Apply formula
 #Case 4-Changes
 #S(x) and S(x) --> S(x) -Vidhu
-#substitute(Update Constant) - vaishnavi
+#substitute(Update Constant) - Done
 #initially convert all existential to Universal -Vidhu
 #conversion to ucnf -Hold
 
