@@ -66,13 +66,26 @@ def find_Separator(UCQ, quantifier):  # find separator for entire UCQ
         if quant_count == clause_count:  # if variable appears in all clauses, it is the separator
             quantifier[q] = 0
             return q
+        
+def substitute(fp,UCQ,sep):
+    UCQ1 = copy.deepcopy(UCQ)
+    for cq in UCQ1:
+        for t in cq.keys():
+            temp = cq[t]["var"]
+            for s in temp:
+                if (sep == s):
+                    temp[temp.index(s)] = str(fp)
+    return UCQ1
 
 def check_Independence_CQ(cq):  # check independence within a CQ
     tables = set()
     for clause in cq:
-        if (cq[clause].get("name") in tables):
-            return False;
-        tables.add(cq[clause].get("name"))
+        temp=cq[clause].get("var")
+        for v in temp:
+            if v in tables:
+                return False;
+        if v.isdigit()==False:
+            tables.add(clause)
     return True
 
 def check_Independence_UCQ(UCQ):  # Check independence across entire UCQ, i.e. no repeating table names
@@ -160,7 +173,7 @@ def probability(UCQ, quantifiers, tables):
     if (sep is not None):
         Pr = 0.0
         for d in domain:
-            Pr*= probability(substitute(d,UCQ))
+            Pr*= probability(substitute(d,UCQ,sep))
         return Pr
     return -1
 def get_domain(probabilities):
