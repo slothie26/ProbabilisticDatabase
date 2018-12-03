@@ -227,9 +227,7 @@ print(probability(UCQ, quantifier, tables))
 # 1 - 0.24 = 0.76
 # 0.636
 # 1- 0.636 = 0.364
-#substitute - vaishnavi
-#get_possible_values_for_seperator - vidhu - DONE
-#get probability - vidhu - DONE
+#substitute(update) - vaishnavi
 #initially convert all existential of universal
 #conversion to ucnf
-#checkindependence updation - vaishnavi
+
