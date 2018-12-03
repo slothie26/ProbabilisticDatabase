@@ -170,9 +170,8 @@ def probability(UCQ, quantifiers, tables):
     sep = (find_Separator(UCQ, quantifiers))
     if (sep is not None):
         Pr = 0.0
-        possible_seperator_values = get_possible_values_for_seperator(sep)
-        for fp in possible_seperator_values:
-            Pr*= probability(substitute(fp,UCQ))
+        for d in domain:
+            Pr*= probability(substitute(d,UCQ))
         return Pr
 
     return -1
