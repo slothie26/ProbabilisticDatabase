@@ -206,7 +206,7 @@ def parse_UCQ(input_query):
 input_query = "S(x),R(x,y)"
 UCQ,quantifier,tables = parse_UCQ(input_query)
 probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
-# probabilities = {'S': [[[0,1],0.8],[[1,0],0.2], [[0,0],0.3]], 'R':[[[0,1],0.3],[[1,0],0.4],[[0,0],0.9]]}
+#probabilities = {'S': [[[0,1],0.8],[[1,0],0.2], [[0,0],0.3]], 'R':[[[0,1],0.3],[[1,0],0.4],[[0,0],0.9]]}
 print(probability(UCQ, quantifier, tables))
 
 # 1 - 0.09 = 0.91
@@ -214,3 +214,9 @@ print(probability(UCQ, quantifier, tables))
 # 1 - 0.24 = 0.76
 # 0.636
 # 1- 0.636 = 0.364
+#substitute - vaishnavi
+#get_possible_values_for_seperator - vidhu
+#get probability - vidhu
+#initially convert all existential of universal
+#conversion to ucnf
+#checkindependence updation - vaishnavi
