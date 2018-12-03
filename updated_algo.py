@@ -227,7 +227,10 @@ print(probability(UCQ, quantifier, tables))
 # 1 - 0.24 = 0.76
 # 0.636
 # 1- 0.636 = 0.364
-#substitute(update) - vaishnavi
-#initially convert all existential of universal
-#conversion to ucnf
+#Inclusion Exclusion- Split into Q1,Q2 -Vaishnavi / Apply formula
+#Case 4-Changes
+#S(x) and S(x) --> S(x) -Vidhu
+#substitute(Update Constant) - vaishnavi
+#initially convert all existential to Universal -Vidhu
+#conversion to ucnf -Hold
 
