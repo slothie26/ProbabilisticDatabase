@@ -50,14 +50,16 @@ def find_Common_Table(list_of_separator_variables):  # find tables whose probabi
                     sep_table_list[table_name] = UCQ[i].get(table_name)
     return (common_table, sep_table_list)
 
-def find_Separator(UCQ, quantifier):  # find separator for entire UCQ
+def find_Separator(UCQ):  # find separator for entire UCQ
+    print("In find_Separator")
     clause_count = 0
     for cq in UCQ:  # calculates how many clauses are there in the UCQ
         for clause in cq:
             clause_count += 1
     for q in quantifier:
-        if (quantifier[q] == 0):  # if variable was already used as separator, don't check for it
-            continue
+        # if (quantifier[q] == 0):  # if variable was already used as separator, don't check for it
+        #     continue
+        #print(quantifier[q])
         quant_count = 0
         for cq in UCQ:
             for clause in cq:
@@ -84,14 +86,17 @@ def substitute(fp,UCQ,sep):
     return UCQ1,UCQ
 
 def check_Independence_CQ(cq):  # check independence within a CQ
+    #print("in check independence", cq)
     tables = set()
-    for clause in cq:
-        temp=cq[clause].get("var")
+    for key,value in cq.items():
+        temp=cq[key].get("var")
         for v in temp:
+            #print(tables)
             if v in tables:
                 return False;
-        if v.isdigit()==False:
-            tables.add(clause)
+            #print(v,v.isdigit())
+            if v.isdigit()==False:
+                tables.add(v)
     return True
 
 def check_Independence_UCQ(UCQ):  # Check independence across entire UCQ, i.e. no repeating table names
@@ -106,14 +111,14 @@ def check_Independence_UCQ(UCQ):  # Check independence across entire UCQ, i.e. n
 
 def no_existential_quantifier(sub_CQ, quantifier):
     # Check if the none of the variables in the UCQ are existential in quantifier dict.
-    print("SUBCQ-no", sub_CQ, quantifier)
+    #print("SUBCQ-no", sub_CQ, quantifier)
     for vars in sub_CQ["var"]:
         if (quantifier[vars] == 1):
             return False
     return True
 
 def update_quantifiers(sub_CQ, quantifiers):
-    print("SUBCQ-up")
+    #print("SUBCQ-up")
     for vars in sub_CQ["var"]:
         if (quantifier[vars] == 1):
             quantifier[vars] = 0
@@ -134,19 +139,27 @@ def isUCQ(UCQ):
         return False
 
 def getProbability(UCQ):
+    #print("in getProbability")
     given_table_name =list(UCQ[0].keys())[0]
     constant_values = set(UCQ[0][list(UCQ[0].keys())[0]]["var"])
+    #print(given_table_name,constant_values)
     flag = True
     for table_name,tuples in probabilities.items():
         if(table_name == given_table_name):
             for my_tuple in tuples:
                 flag = True
+                #print("MYTUPLE", my_tuple, constant_values)
                 for my_input in constant_values:
-                    if(my_input not in my_tuple[0]):
+                    # print("hi",my_input,my_tuple[0],flag)
+                    if(int(my_input) not in my_tuple[0]):
+                      #  print("false flag")
                         flag = False
+                #print("###",flag)
                 if(flag == True):
+                    #print(my_tuple[1])
                     return my_tuple[1]
-                    
+    print("0")
+    return 0
 
 
 def allConstantParameters(subUCQ):  # checks if all variables are numbers and not characters
@@ -155,13 +168,17 @@ def allConstantParameters(subUCQ):  # checks if all variables are numbers and no
             return False
     return True
 
-def probability(UCQ, quantifiers, tables):
+def probability(UCQ):
     print(UCQ)
+    print("probability")
     sep=""
     # Base of recursion
     if (len(UCQ) == 1 and len(UCQ[0]) ==1 and allConstantParameters(UCQ[0][list(UCQ[0].keys())[0]])):  # is a ground atom
-        print("CASE1")
-        return getProbability(UCQ)# checks if the given constant values are present in the given tables, if present return probability, else returns 0
+        print("CASE1",getProbability(UCQ), UCQ )
+        if(UCQ[0][list(UCQ[0].keys())[0]]["negation"]==False):
+            return getProbability(UCQ)# checks if the given constant values are present in the given tables, if present return probability, else returns 0
+        else:
+            return 1 - getProbability(UCQ)
     # convert to ucnf
     if (len(UCQ) == 2 and check_Independence_UCQ(UCQ)):  # both cq are independent of each other
         print("CASE2")
@@ -172,16 +189,24 @@ def probability(UCQ, quantifiers, tables):
             sum = 0
             return -2
         # not sure how to translate this formula. what is m? why have they sued subset and not belongs
-    if (len(UCQ) == 0 and check_Independence_CQ(UCQ[0])):
+    if (len(UCQ) == 1 and len(UCQ[0])>1 and check_Independence_CQ(UCQ[0])):
         print("CASE4")
-        return probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[0]]]) * probability(UCQ[0][UCQ[0][list(UCQ[0].keys())[1]]])
-    sep = (find_Separator(UCQ, quantifiers))
+        Pr = 0.0
+        for key,value in UCQ[0].items():
+            print("in",[{key:value}])
+            Pr*= probability([{key:value}])
+
+        return Pr
+    sep = (find_Separator(UCQ))
+    print("seperator",sep)
     if (sep is not None):
+        print("CASE 5")
         Pr = 0.0
         for d in domain:
             UCQ1,UCQ=substitute(d,UCQ,sep)
             Pr*= probability(UCQ1)
         return Pr
+    print("UNLIFTABLE")
     return -1
 def get_domain(probabilities):
     domain = set()
@@ -191,6 +216,8 @@ def get_domain(probabilities):
                 if(my_input not in domain):
                     domain.add(my_input)
     return domain
+def convert_to_universal(UCQ, quantifier):
+    pass
 def parse_UCQ(input_query):
     UCQ = []
     quantifier = {}
@@ -218,16 +245,20 @@ def parse_UCQ(input_query):
         UCQ.append(dict_cq)  # append conjunctive clause dictionary to the list of union of conjunctive clauses
         tables.append(temp_tables)
     return UCQ, quantifier, tables
-input_query = "S(x),R(x,y)"
+input_query = "R(x,y), Q(x)"
 UCQ,quantifier,tables = parse_UCQ(input_query)
 #probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
 probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
+#UCQ,quantifier = convert_to_universal(UCQ,quantifier)
 domain = get_domain(probabilities)
-print("domain",domain)
-temp = [{'R': {'var': [0,1], 'negation': False, 'const': False}}]
-print("geprob", getProbability(temp)) #testing
-print(probability(UCQ, quantifier, tables))
-
+#print("domain",domain)
+temp = [{'R': {'var': [0,0], 'negation': False, 'const': False}}]
+#print("geprob", getProbability(temp)) #testing
+cnf = True
+print(1 - probability(UCQ))
+# temp_UCQ = [{'R': {'var': ['x', 'y'], 'negation': False, 'const': False}, 'Q': {'var': ['x'], 'negation': False, 'const': False}}]
+# cnf = False
+# print(1 - probability(temp_UCQ))
 
 # 1 - 0.09 = 0.91
 # 1 - 0.08 = 0.92
@@ -236,8 +267,8 @@ print(probability(UCQ, quantifier, tables))
 # 1- 0.636 = 0.364
 #Inclusion Exclusion- Split into Q1,Q2 -Vaishnavi / Apply formula
 #Case 4-Changes
-#S(x) and S(x) --> S(x) -Vidhu
+#S(x) and S(x) --> S(x) -Vidhu Done
 #substitute(Update Constant) - Done
 #initially convert all existential to Universal -Vidhu
 #conversion to ucnf -Hold
-
+#updated check independence cq
