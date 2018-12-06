@@ -120,12 +120,44 @@ def getProbability(UCQ):
     # print("0")
     return 0
 
-
 def allConstantParameters(subUCQ):  # checks if all variables are numbers and not characters
     for x in subUCQ["var"]:
         if (x.isdigit() == False):
             return False
     return True
+def split_into_connected_components(sub_UCQ):
+    print("split_into_connected_components")
+    ucnf = []
+    list_of_component_variables = []
+    for k,v in sub_UCQ.items():
+        print(k,":",v)
+        flag = False
+        for i in range(len(list_of_component_variables)):
+            for j in sub_UCQ[k]["var"]:
+                if j in list_of_component_variables[i]:
+                    if(j.isdigit() == False):
+                        flag = True
+                        ucnf[i][0][k] = v
+                        break
+        if(flag==False):
+            print("False")
+            list_of_component_variables.append(set(sub_UCQ[k]["var"]))
+            ucnf.append([{k:v}])
+    return ucnf
+
+
+
+
+def convert_to_ucnf(UCQ):
+    print("convert_to_ucnf")
+    ucnf = []
+    if(len(UCQ)==1):
+        ucnf = split_into_connected_components(UCQ[0])
+    # elif():
+
+    # else:
+    return ucnf
+
 
 def probability(UCQ):
     print(UCQ)
@@ -141,8 +173,10 @@ def probability(UCQ):
             print("CASE1",1 - getProbability(UCQ), UCQ )
             return 1 - getProbability(UCQ)
     # convert to ucnf
+    UCNF = convert_to_ucnf(UCQ)
+    print("************************************************",UCNF)
     # print(len(UCQ), len(UCQ[0]))
-    if (len(UCQ) == 1 and len(UCQ[0]) == 2 and check_Independence_CQ(UCQ)):  # both cq are independent of each other
+    if (len(UCNF) == 2):  # both cq are independent of each other
         print("CASE2")
         ans = 1 - ((1 - probability([{list(UCQ[0].keys())[0]:UCQ[0][list(UCQ[0].keys())[0]]}])) * (1 - probability([{list(UCQ[0].keys())[1]:UCQ[0][list(UCQ[0].keys())[1]]}])))
         print("CASE2 returning", ans)
@@ -182,8 +216,6 @@ def get_domain(probabilities):
                 if(my_input not in domain):
                     domain.add(my_input)
     return domain
-def convert_to_universal(UCQ, quantifier):
-    pass
 def parse_UCQ(input_query):
     UCQ = []
     quantifier = {}
@@ -211,11 +243,11 @@ def parse_UCQ(input_query):
         UCQ.append(dict_cq)  # append conjunctive clause dictionary to the list of union of conjunctive clauses
         tables.append(temp_tables)
     return UCQ, quantifier, tables
-input_query = "R(x,y), S(x)"
+input_query = "H(x), E(x,y)"
 UCQ,quantifier,tables = parse_UCQ(input_query)
 #probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
 #probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
-probabilities = {'R':[[[0,0],0.2],[[1,0],0.7]],'S':[[[0],0.6],[[1],0.4]]}
+probabilities = {'E':[[[0,0],0.7],[[0,1],0.4],[[1,0],0.3]],'H':[[[0],0.7],[[1],0.4],[[2],0.9]]}
 domain = get_domain(probabilities)
 #print("domain",domain)
 # temp = [{'S': {'var': ['x'], 'negation': True, 'const': False},'R': {'var': ['x','y'], 'negation': True, 'const': False}}]
