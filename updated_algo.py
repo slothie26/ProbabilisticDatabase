@@ -252,7 +252,7 @@ def probability(UCQ):
                 for term in final:
                     sum = sum + (sign * probability(term))
                 sign = sign * -1
-        return sum
+            return sum
     if (len(UCQ) == 2 and check_Independence_UCQ(UCQ)):
         print("CASE4")
         Pr = 1.0
