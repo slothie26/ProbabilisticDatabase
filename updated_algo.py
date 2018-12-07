@@ -126,11 +126,11 @@ def allConstantParameters(subUCQ):  # checks if all variables are numbers and no
             return False
     return True
 def split_into_connected_components(sub_UCQ):
-    print("split_into_connected_components")
+    # print("split_into_connected_components", sub_UCQ)
     ucnf = []
     list_of_component_variables = []
     for k,v in sub_UCQ.items():
-        print(k,":",v)
+        # print(k,":",v)
         flag = False
         for i in range(len(list_of_component_variables)):
             for j in sub_UCQ[k]["var"]:
@@ -140,23 +140,51 @@ def split_into_connected_components(sub_UCQ):
                         ucnf[i][0][k] = v
                         break
         if(flag==False):
-            print("False")
             list_of_component_variables.append(set(sub_UCQ[k]["var"]))
             ucnf.append([{k:v}])
     return ucnf
 
 
+def greaterThanTwoConnectedComponents(q_ucnf):
+    
+    for q in q_ucnf:
+        # print("q",q)
+        if(len(q[0])>1):
+            return True
 
-
+    return False
 def convert_to_ucnf(UCQ):
-    print("convert_to_ucnf")
+    print("convert_to_ucnf", UCQ)
     ucnf = []
     if(len(UCQ)==1):
+        print("subcase 1")
         ucnf = split_into_connected_components(UCQ[0])
-    # elif():
-
-    # else:
-    return ucnf
+        print("ucnf", ucnf)
+        return ucnf
+    q1_ucnf = split_into_connected_components(UCQ[0])
+    q2_ucnf = split_into_connected_components(UCQ[1])
+    print("q1",q1_ucnf, "q2", q2_ucnf)
+    if(greaterThanTwoConnectedComponents(q1_ucnf)):
+        print("subcase 2")
+        for tp in q1_ucnf:
+            print("tp", tp)
+            toadd = convert_to_ucnf(q2_ucnf[0])[0][0]
+            print("to add",toadd)
+            tp.append(toadd)
+            ucnf.append(tp)
+            # print("newtp", newtp)
+        print("ucnf", ucnf)
+        return ucnf
+    elif(greaterThanTwoConnectedComponents(q2_ucnf)):
+        print("subcase 3")
+        for tp in q1_ucnf:
+            tp.append(convert_to_ucnf(q1_ucnf[0])[0][0])
+            ucnf.append(tp)
+        print("ucnf", ucnf)
+        return ucnf
+    else:
+        print("hhhsubcase 4h")
+        return UCQ
 
 
 def probability(UCQ):
@@ -243,7 +271,7 @@ def parse_UCQ(input_query):
         UCQ.append(dict_cq)  # append conjunctive clause dictionary to the list of union of conjunctive clauses
         tables.append(temp_tables)
     return UCQ, quantifier, tables
-input_query = "H(x), E(x,y)"
+input_query = "H(x), E(x,y), P(o)||T(z)"
 UCQ,quantifier,tables = parse_UCQ(input_query)
 #probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
 #probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
