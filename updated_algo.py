@@ -234,10 +234,10 @@ def probability(UCQ):
                 incexc = False
         if (incexc == True):
             sign = -1
-            sum = 0
+            addition = 0
             # Sums all the single terms since combiner function takes arguments for >=2 only.
             for i in range(len(UCNF)):
-                sum = sum + probability(UCNF[i])
+                addition = addition + probability(UCNF[i])
             # Adds up all the combinations of 2,3...n terms in UCNF
             for i in range(2, len(UCNF) + 1):
                 # Combination is an inbuilt function accepting array and number of terms in combination
@@ -250,9 +250,9 @@ def probability(UCQ):
                             y.append(p)
                     final.append(y)
                 for term in final:
-                    sum = sum + (sign * probability(term))
+                    addition = addition + (sign * probability(term))
                 sign = sign * -1
-            return sum
+            return addition
     if (len(UCQ) == 2 and check_Independence_UCQ(UCQ)):
         print("CASE4")
         Pr = 1.0
