@@ -108,11 +108,13 @@ def split_into_connected_components(sub_UCQ):
 
 
 def greaterThanTwoConnectedComponents(q_ucnf):
-    for q in q_ucnf:
-        # print("q",q)
-        if (len(q[0]) > 1):
-            return True
-
+    # for q in q_ucnf:
+    #     print("q",q)
+    #     if (len(q[0]) > 1):
+    #         return True
+    print(len(q_ucnf))
+    if(len(q_ucnf)>1):
+        return True
     return False
 
 
@@ -132,25 +134,43 @@ def convert_to_ucnf(UCQ):
         for tp in q1_ucnf:
             print("tp", tp)
             toadd = convert_to_ucnf(q2_ucnf[0])[0][0]
-            print("to add", toadd)
-            tp.append(toadd)
-            ucnf.append(tp)
-        print("ucnf", ucnf)
-        return ucnf
+            print("toadd",toadd)
+            for tadd in toadd:
+                newtp =[]
+                newtp.append(copy.deepcopy(tp[0][0]))
+
+                newtp.append(tadd)
+                print("newtp",newtp)
+                ucnf.append(newtp)
+                # print("tadd", tadd)
+                print("intermediat UCNF", ucnf)
+            # tp.append(toadd)
+            # ucnf.append(tp)
+        # print("ucnf", ucnf)
+        return [ucnf]
     elif (greaterThanTwoConnectedComponents(q2_ucnf)):
         print("subcase 3")
         for tp in q2_ucnf:
-            tp.append(convert_to_ucnf(q1_ucnf[0])[0][0])
-            ucnf.append(tp)
-        print("ucnf", ucnf)
-        return ucnf
+            # print("tp", tp)
+            toadd = convert_to_ucnf(q1_ucnf[0])[0][0]
+            for tadd in toadd:
+                newtp =[]
+                newtp.append(copy.deepcopy(tp))
+
+                newtp.append(tadd)
+                ucnf.append(newtp)
+                # print("tadd", tadd)
+                # print("intermediat UCNF", ucnf)
+        # print("ucnf", ucnf)
+        return [ucnf]
     else:
         print("subcase 4")
-        return UCQ
+        return [UCQ]
 def check_Independence_UCNF(ucnf):
     cnf_set = set()
     for cnf in ucnf:
         for q in cnf[0]:
+            print("q",q)
             if(q[0] in cnf_set):
                 return False
             else:
@@ -186,7 +206,7 @@ def probability(UCQ):
         print("CASE2 returning", ans)
         return ans
     #Inclusion Exclusion
-    if (len(UCNF) > 1 and type(UCNF[0]) is list):
+    if (len(UCNF) ==2 and type(UCNF[0]) is list):
         print("CASE 3")
         incexc = True
         for cnf in UCNF:
