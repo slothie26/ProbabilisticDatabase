@@ -3,109 +3,56 @@ import sys
 import copy
 from itertools import combinations
 
+#fixed
 def find_Separator(UCQ):  # find separator for entire UCQ
     # print("In find_Separator")
-    clause_count = 0
-    for cq in UCQ:  # calculates how many clauses are there in the UCQ
-        for clause in cq:
-            clause_count += 1
+
     for q in quantifier:
-        # if (quantifier[q] == 0):  # if variable was already used as separator, don't check for it
-        #     continue
-        # print(quantifier[q])
-        quant_count = 0
         for cq in UCQ:
-            for clause in cq:
-                if q in cq[clause].get("var"):
+            quant_count = 0
+            for clause in range(len(cq)):
+                # print(q,"&&",cq[clause])
+                if q in cq[clause][1]["var"]:
+                    # print("updated")
                     quant_count += 1
-        if quant_count == clause_count:  # if variable appears in all clauses, it is the separator
-            quantifier[q] = 0
-            return q
+            if quant_count == len(cq):  # if variable appears in all clauses, it is the separator
+                quantifier[q] = 0
+                return q
 
-
+#fixed
 def substitute(fp, UCQ, sep):
     UCQ1 = copy.deepcopy(UCQ)
-    for cq in range(0, len(UCQ1)):
-        for t in UCQ1[cq].keys():
+    for cq in range(len(UCQ1)):
+        for t in range(len(UCQ1[cq])):
             constant = True
-            temp = UCQ1[cq][t]["var"]
+            temp = UCQ1[cq][t][1]["var"]
             for i in range(0, len(temp)):
                 if (sep == temp[i]):
                     temp[i] = str(fp)
                 if (temp[i].isalpha()):
                     constant = False
             if (constant == True):
-                UCQ1[cq][t]["const"] = True
-                UCQ[cq][t]["const"] = True
+                UCQ1[cq][t][1]["const"] = True
+                UCQ[cq][t][1]["const"] = True
     return UCQ1, UCQ
 
-
-def check_Independence_CQ(cq):  # check independence within a CQ
-    # print("in check independence", cq)
-    cq = cq[0]
-    tables = set()
-    for key, value in cq.items():
-        temp = cq[key].get("var")
-        for v in temp:
-            # print(tables)
-            if v in tables:
-                # print("False")
-                return False;
-            # print(v,v.isdigit())
-            if v.isdigit() == False:
-                tables.add(v)
-    # print("True")
-    return True
-
-
+#fixed
 def check_Independence_UCQ(UCQ):  # Check independence across entire UCQ, i.e. no repeating table names
+    # print("check_Independence_UCQ")
     temp = set()
     for cq in range(len(UCQ)):
-        for k in UCQ[cq].keys():
-            if k in temp:
+        for k in UCQ[cq]:
+            # print("k",k)
+            if k[0] in temp:
                 return False
             else:
-                return True
+                temp.add(k[0])
     return True
-
-
-def no_existential_quantifier(sub_CQ, quantifier):
-    # Check if the none of the variables in the UCQ are existential in quantifier dict.
-    # print("SUBCQ-no", sub_CQ, quantifier)
-    for vars in sub_CQ["var"]:
-        if (quantifier[vars] == 1):
-            return False
-    return True
-
-
-def update_quantifiers(sub_CQ, quantifiers):
-    # print("SUBCQ-up")
-    for vars in sub_CQ["var"]:
-        if (quantifier[vars] == 1):
-            quantifier[vars] = 0
-    return quantifiers
-
-
-def test(UCQ):
-    for value in UCQ:
-        try:
-            float(value)
-        except ValueError:
-            return True
-    return False
-
-
-def isUCQ(UCQ):
-    if type(UCQ) is list:
-        return True
-    elif type(UCQ) is dict:
-        return False
-
-
+#fixed
 def getProbability(UCQ):
     # print("in getProbability")
-    given_table_name = list(UCQ[0].keys())[0]
-    constant_values = UCQ[0][list(UCQ[0].keys())[0]]["var"]
+    given_table_name = UCQ[0][0][0]
+    constant_values = UCQ[0][0][1]["var"]
     # print(given_table_name,constant_values)
     flag = True
     for table_name, tuples in probabilities.items():
@@ -128,9 +75,9 @@ def getProbability(UCQ):
     # print("0")
     return 0
 
-
+#fixed
 def allConstantParameters(subUCQ):  # checks if all variables are numbers and not characters
-    for x in subUCQ["var"]:
+    for x in subUCQ[1]["var"]:
         if (x.isdigit() == False):
             return False
     return True
@@ -140,19 +87,23 @@ def split_into_connected_components(sub_UCQ):
     # print("split_into_connected_components", sub_UCQ)
     ucnf = []
     list_of_component_variables = []
-    for k, v in sub_UCQ.items():
-        # print(k,":",v)
+    # print("UCNF",ucnf)
+    for sub in sub_UCQ:
+        # print("sub",sub, list_of_component_variables)
         flag = False
         for i in range(len(list_of_component_variables)):
-            for j in sub_UCQ[k]["var"]:
+            for j in sub[1]["var"]:
                 if j in list_of_component_variables[i]:
                     if (j.isdigit() == False):
                         flag = True
-                        ucnf[i][0][k] = v
+                        ucnf[i][0].append(sub)
                         break
         if (flag == False):
-            list_of_component_variables.append(set(sub_UCQ[k]["var"]))
-            ucnf.append([{k: v}])
+            # print("False")
+            list_of_component_variables.append(set(sub[1]["var"]))
+
+            ucnf.append([[sub]])
+    # print("ucnf",ucnf)
     return ucnf
 
 
@@ -166,12 +117,12 @@ def greaterThanTwoConnectedComponents(q_ucnf):
 
 
 def convert_to_ucnf(UCQ):
-    print("convert_to_ucnf", UCQ)
+    # print("convert_to_ucnf", UCQ)
     ucnf = []
     if (len(UCQ) == 1):
         print("subcase 1")
         ucnf = split_into_connected_components(UCQ[0])
-        print("ucnf", ucnf)
+        # print("ucnf", ucnf)
         return ucnf
     q1_ucnf = split_into_connected_components(UCQ[0])
     q2_ucnf = split_into_connected_components(UCQ[1])
@@ -184,50 +135,59 @@ def convert_to_ucnf(UCQ):
             print("to add", toadd)
             tp.append(toadd)
             ucnf.append(tp)
-            # print("newtp", newtp)
         print("ucnf", ucnf)
         return ucnf
     elif (greaterThanTwoConnectedComponents(q2_ucnf)):
         print("subcase 3")
-        for tp in q1_ucnf:
+        for tp in q2_ucnf:
             tp.append(convert_to_ucnf(q1_ucnf[0])[0][0])
             ucnf.append(tp)
         print("ucnf", ucnf)
         return ucnf
     else:
-        print("hhhsubcase 4h")
+        print("subcase 4")
         return UCQ
-
+def check_Independence_UCNF(ucnf):
+    cnf_set = set()
+    for cnf in ucnf:
+        for q in cnf[0]:
+            if(q[0] in cnf_set):
+                return False
+            else:
+                cnf_set.add(q[0])
+    return True
 
 def probability(UCQ):
     print(UCQ)
     # print("probability")
     sep = ""
     # Base of recursion
+    # print(len(UCQ), len(UCQ[0]),allConstantParameters(UCQ[0][0]))
     if (len(UCQ) == 1 and len(UCQ[0]) == 1 and allConstantParameters(
-            UCQ[0][list(UCQ[0].keys())[0]])):  # is a ground atom
+            UCQ[0][0])):  # is a ground atom
 
-        if (UCQ[0][list(UCQ[0].keys())[0]]["negation"] == False):
+        if (UCQ[0][0][1]["negation"] == False):
             print("CASE1**", getProbability(UCQ), UCQ)
-            return getProbability(
-                UCQ)  # checks if the given constant values are present in the given tables, if present return probability, else returns 0
+            return getProbability(UCQ)  # checks if the given constant values are present in the given tables, if present return probability, else returns 0
         else:
             print("CASE1", 1 - getProbability(UCQ), UCQ)
             return 1 - getProbability(UCQ)
     # convert to ucnf
     UCNF = convert_to_ucnf(UCQ)
+    #UCNF = []
     print("************************************************", UCNF)
     
     
     #########I think the if condition below should be--if (len(UCNF) == 2 and type(UCNF[0]) is list):
-    if (len(UCNF) == 2):  # both cq are independent of each other
+    if (len(UCNF) == 2 and check_Independence_UCNF(UCNF)):  # both cq are independent of each other
         print("CASE2")
-        ans = 1 - ((1 - probability([{list(UCQ[0].keys())[0]: UCQ[0][list(UCQ[0].keys())[0]]}])) * (
-                    1 - probability([{list(UCQ[0].keys())[1]: UCQ[0][list(UCQ[0].keys())[1]]}])))
+        ans = 1 - ((1 - probability(UCNF[0])) * (
+                    1 - probability(UCNF[1])))
         print("CASE2 returning", ans)
         return ans
     #Inclusion Exclusion
     if (len(UCNF) > 1 and type(UCNF[0]) is list):
+        print("CASE 3")
         incexc = True
         for cnf in UCNF:
             if (check_Independence_UCQ(cnf) == False):
@@ -262,7 +222,7 @@ def probability(UCQ):
         print("CASE4 returning", Pr)
         return Pr
     sep = (find_Separator(UCQ))
-    # print("seperator",sep)
+    print("seperator",sep)
     if (sep is not None):
         print("CASE 5")
         Pr = 1.0
@@ -275,7 +235,7 @@ def probability(UCQ):
     print("UNLIFTABLE")
     return -1
 
-
+#fixed
 def get_domain(probabilities):
     domain = set()
     for table_name, tuples in probabilities.items():
@@ -285,7 +245,7 @@ def get_domain(probabilities):
                     domain.add(my_input)
     return domain
 
-
+#fixed
 def parse_UCQ(input_query):
     UCQ = []
     quantifier = {}
@@ -295,7 +255,7 @@ def parse_UCQ(input_query):
         cq = cq.strip()  # remove spaces
         list_cq = cq.split(
             "),")  # to get list of relations. splitting by ), instead of , to ensure that it splits two relations and not withing a single relation
-        dict_cq = {}  # dictionary representing each conjunctive clause
+        dict_cq = []  # dictionary representing each conjunctive clause
         temp_tables = set()
         for q in list_cq:  # iterate through the relations within each conjunctive clause
             q = q.strip()  # remove spaces
@@ -309,14 +269,17 @@ def parse_UCQ(input_query):
             temp_tables.add(q[0])
             for var in temp_dict["var"]:  # set the quantifier value as existential for all variables
                 quantifier[var] = 1
-            dict_cq[q[0]] = temp_dict  # append relation dictionary to the conjunctive clause dictionary
+            temp_list = [q[0], temp_dict]
+            dict_cq.append(temp_list)  # append relation dictionary to the conjunctive clause dictionary
         UCQ.append(dict_cq)  # append conjunctive clause dictionary to the list of union of conjunctive clauses
         tables.append(temp_tables)
     return UCQ, quantifier, tables
 
 
-input_query = "R(x1)||S(x1,y2)||S(x2,y2)||T(x2)"
+input_query = "R(x1), S(x1,y1), S(x2,y2), T(x2)"
 UCQ, quantifier, tables = parse_UCQ(input_query)
+print("UCQ",UCQ)
+print("")
 # probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
 # probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
 probabilities = {'S': [[[0, 0], 0.7], [[0, 1], 0.4], [[1, 0], 0.3]], 'R': [[[0], 0.7], [[1], 0.4], [[2], 0.9]],'T':[[[0],0.2],[[1],0.4],[[2],0.7]]}
