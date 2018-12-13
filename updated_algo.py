@@ -192,6 +192,7 @@ def probability(UCQ):
         else:
             print("CASE1", 1 - getProbability(UCQ), UCQ)
             return 1 - getProbability(UCQ)
+    
     # convert to ucnf
     UCNF = convert_to_ucnf(UCQ)
     #UCNF = []
@@ -206,7 +207,7 @@ def probability(UCQ):
         print("CASE2 returning", ans)
         return ans
     #Inclusion Exclusion
-    if (len(UCNF) ==2 and type(UCNF[0]) is list):
+    if (len(UCNF) ==2 and check_Independence_UCNF(UCNF)==False and type(UCNF[0]) is list):
         print("CASE 3")
         incexc = True
         for cnf in UCNF:
@@ -252,6 +253,7 @@ def probability(UCQ):
             Pr *= probability(UCQ1)
         print("CASE5 returning", Pr)
         return Pr
+
     print("UNLIFTABLE")
     return -1
 
@@ -294,16 +296,42 @@ def parse_UCQ(input_query):
         UCQ.append(dict_cq)  # append conjunctive clause dictionary to the list of union of conjunctive clauses
         tables.append(temp_tables)
     return UCQ, quantifier, tables
+def read_query(fname):
+    f = open(fname, "r")
+    query = f.read().splitlines()
+    input_query="".join(query)
+    return input_query
+def parse_tables(tablefiles):
+    probabilities = {}
+    for tablefile in tablefiles:
+        table_list = []
+        tbf = open(tablefile, "r")
+        tname = tbf.readline().strip()
+        templist = tbf.read().splitlines()
+        rows = []
+        for t in templist:
+            t2 = t.split(",")
+            t2 = [tsub2.strip() for tsub2 in t2]
+            prob = float(t2[len(t2)-1])
+            del t2[len(t2)-1]
+            var = [int(v) for v in t2]
+            row = [var,prob]
+            rows.append(row)
+        probabilities[tname] = rows
+    return probabilities
+print(read_query("query.txt"))
+print(parse_tables(["table1.txt", "table2.txt", "table3.txt"]))
+# probabilities = {'R': [[[0], 0.7], [[1], 0.8], [[2], 0.6]], 'T': [[[0], 0.7], [[1], 0.3], [[2], 0.5]], 'S': [[[0, 0], 0.8], [[0, 1], 0.4], [[0, 2], 0.5], [[1, 2], 0.6], [[2, 2], 0.9]]}
+probabilities = parse_tables(["table1.txt", "table2.txt", "table3.txt"])
+domain = get_domain(probabilities)
 
-
-input_query = "R(x1), S(x1,y1), S(x2,y2), T(x2)"
+# input_query = "R(x1),S(x1,y1) ||S(x2, y2), T(x2)"
+input_query = read_query("query.txt")
 UCQ, quantifier, tables = parse_UCQ(input_query)
 print("UCQ",UCQ)
 print("")
 # probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
 # probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
-probabilities = {'S': [[[0, 0], 0.7], [[0, 1], 0.4], [[1, 0], 0.3]], 'R': [[[0], 0.7], [[1], 0.4], [[2], 0.9]],'T':[[[0],0.2],[[1],0.4],[[2],0.7]]}
-domain = get_domain(probabilities)
 # print("domain",domain)
 # temp = [{'S': {'var': ['x'], 'negation': True, 'const': False},'R': {'var': ['x','y'], 'negation': True, 'const': False}}]
 # print("geprob", getProbability(temp)) #testing
