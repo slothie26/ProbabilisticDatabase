@@ -1,0 +1,13 @@
+R(x,y),P(x) 0.9181936
+R(x,y),P(z) 0.973
+P(x),Q(x) || P(x), S(x) 0.9411
+P(x), R(x,y) || Q(z), R(x,z) Exception
+R(x, y), P(x), Q(z), R(z, f) 0.783
+P(x), R(x, y), Q(z), R(z, f) 0.783
+R(x,y),P(y),R(z,y),Q(y) Exception
+R(x,z),S(z,y)  0.92
+S(x,z,z),R(x,z),P(z) 0.0
+Q(x) || P(z) 0.99748
+Q(x) || P(x) 0.99748
+S(x,y,z),S(x,y,w) UNLIFTABLE
+P(x),R(x,y),S(x,z)||P(x),T(y,x,z) UNLIFTABLE
