@@ -15,7 +15,7 @@ def find_Separator(UCQ):  # find separator for entire UCQ
                 if q in cq[clause][1]["var"]:
                     # print("updated")
                     quant_count += 1
-            if quant_count == len(cq):  # if variable appears in all clauses, it is the separator
+            if quant_count == len(cq) and q.isdigit() == False :  # if variable appears in all clauses, it is the separator
                 quantifier[q] = 0
                 return q
 
@@ -112,14 +112,14 @@ def greaterThanTwoConnectedComponents(q_ucnf):
     #     print("q",q)
     #     if (len(q[0]) > 1):
     #         return True
-    print(len(q_ucnf))
+    # print(len(q_ucnf))
     if(len(q_ucnf)>1):
         return True
     return False
 
 
 def convert_to_ucnf(UCQ):
-    # print("convert_to_ucnf", UCQ)
+    print("convert_to_ucnf", UCQ)
     ucnf = []
     if (len(UCQ) == 1):
         print("subcase 1")
@@ -131,33 +131,36 @@ def convert_to_ucnf(UCQ):
     print("q1", q1_ucnf, "q2", q2_ucnf)
     if (greaterThanTwoConnectedComponents(q1_ucnf)):
         print("subcase 2")
+        q2_ucnf = [x[0] for x in q2_ucnf]
         for tp in q1_ucnf:
             print("tp", tp)
-            toadd = convert_to_ucnf(q2_ucnf[0])[0][0]
-            print("toadd",toadd)
+            toadd = convert_to_ucnf(q2_ucnf)[0]
+            # print("toadd",toadd)
             for tadd in toadd:
+                print("tadd",tadd)
                 newtp =[]
-                newtp.append(copy.deepcopy(tp[0][0]))
+                newtp.append(copy.deepcopy(tp[0]))
 
                 newtp.append(tadd)
-                print("newtp",newtp)
+                # print("newtp",newtp)
                 ucnf.append(newtp)
                 # print("tadd", tadd)
                 print("intermediat UCNF", ucnf)
             # tp.append(toadd)
             # ucnf.append(tp)
         # print("ucnf", ucnf)
-        return [ucnf]
+        return ucnf
     elif (greaterThanTwoConnectedComponents(q2_ucnf)):
         print("subcase 3")
+        q1_ucnf = [x[0] for x in q1_ucnf]
         for tp in q2_ucnf:
             # print("tp", tp)
-            toadd = convert_to_ucnf(q1_ucnf[0])[0][0]
+            toadd = convert_to_ucnf(q1_ucnf)[0]
             for tadd in toadd:
                 newtp =[]
                 newtp.append(copy.deepcopy(tp))
 
-                newtp.append(tadd)
+                newtp.append(tadd[0])
                 ucnf.append(newtp)
                 # print("tadd", tadd)
                 # print("intermediat UCNF", ucnf)
@@ -170,13 +173,76 @@ def check_Independence_UCNF(ucnf):
     cnf_set = set()
     for cnf in ucnf:
         for q in cnf[0]:
-            print("q",q)
+            # print("q",q)
             if(q[0] in cnf_set):
                 return False
             else:
                 cnf_set.add(q[0])
     return True
-
+def change_vars_if_needed(UCQ):
+    cq1 = UCQ[0]
+    cq2 = UCQ[1]
+    table_name_1 = set()
+    table_name_2 = set()
+    for t in cq1:
+        table_name_1.add(t[0])
+    for t in cq2:
+        table_name_2.add(t[0])
+    common_table = ''
+    for tname in table_name_1:
+        if tname in table_name_2:
+            common_table = tname
+    common_table_vars = []
+    equiv_vars = []
+    for tables in cq1:
+        if tables[0] == common_table:
+            common_table_vars = tables[1]['var']
+    for tables in cq2:
+        if tables[0] == common_table:
+            equiv_vars = tables[1]['var']
+    equiv_vars_dict = {}
+    for eq_ind in range(len(equiv_vars)):
+        equiv_vars_dict[equiv_vars[eq_ind]] = eq_ind 
+    for i in range(len(cq2)):
+        for j in range(len(cq2[i][1]['var'])):
+            if cq2[i][1]['var'][j] in equiv_vars_dict.keys():
+                cq2[i][1]['var'][j] = common_table_vars[equiv_vars_dict[cq2[i][1]['var'][j]]] 
+    del UCQ[1]
+    UCQ.append(cq2)
+    return UCQ
+def cancellation(UCNF):
+    print("cancellation")
+    name = ''
+    # print(UCNF)
+    # print(UCNF[0])
+    for i in range(len(UCNF)):
+        if(UCNF[i][0][0][0] == UCNF[i][1][0][0]):
+            name = UCNF[i][0][0][0]
+            UCNF[i].pop()
+            # print("CHECK",UCNF[0][i] )
+    
+    todel = -1
+    print(name)
+    print(UCNF)
+    for i in range(len(UCNF)):
+        # print("i",i,UCNF[0][i])
+        if( len(UCNF[i])==2 and (UCNF[i][0][0][0] ==name or UCNF[i][1][0][0] ==name)):
+            todel = i
+    # print("$$",UCNF)
+    del UCNF[i]
+    print("++",UCNF)
+    todel = -1
+    # print('1')
+    for i in range(len(UCNF)):
+        cnf = UCNF[i]
+        # print("^^",cnf, cnf[0][0], cnf[1][0], name,len(cnf)==2 )
+        if( len(cnf)==2 and (cnf[0][0][0] ==name or cnf[1][0][0] ==name)):
+            # print("fixing")
+            todel = i
+            break
+    del UCNF[i]
+    print("NEW UCNF", UCNF)
+    return UCNF
 def probability(UCQ):
     print(UCQ)
     # print("probability")
@@ -192,15 +258,22 @@ def probability(UCQ):
         else:
             print("CASE1", 1 - getProbability(UCQ), UCQ)
             return 1 - getProbability(UCQ)
-    
+    if(len(UCQ)==2):
+        UCQ = change_vars_if_needed(UCQ)
     # convert to ucnf
     UCNF = convert_to_ucnf(UCQ)
     #UCNF = []
     print("************************************************", UCNF)
-    
-    
+    if(len(UCNF)==4):
+        print("cancellation")
+        UCNF = cancellation(UCNF)
+        print("new UCNF", UCNF)
+        # ans = 1 - ((1 - probability(UCNF[0])) *(1 - probability(UCNF[1])))
+        print("case cancellation returning")
+        # return ans
     #########I think the if condition below should be--if (len(UCNF) == 2 and type(UCNF[0]) is list):
-    if (len(UCNF) == 2 and check_Independence_UCNF(UCNF)):  # both cq are independent of each other
+    print(len(UCQ))
+    if ((len(UCNF) == 2 )and check_Independence_UCNF(UCNF) and type(UCNF[0]) is list):  # both cq are independent of each other
         print("CASE2")
         ans = 1 - ((1 - probability(UCNF[0])) * (
                     1 - probability(UCNF[1])))
@@ -219,6 +292,7 @@ def probability(UCQ):
             # Sums all the single terms since combiner function takes arguments for >=2 only.
             for i in range(len(UCNF)):
                 addition = addition + probability(UCNF[i])
+            print("addition1", addition)
             # Adds up all the combinations of 2,3...n terms in UCNF
             for i in range(2, len(UCNF) + 1):
                 # Combination is an inbuilt function accepting array and number of terms in combination
@@ -232,14 +306,16 @@ def probability(UCQ):
                     final.append(y)
                 for term in final:
                     addition = addition + (sign * probability(term))
+                    print("addition",(sign * probability(term))," ",addition)
                 sign = sign * -1
+            print("CASE 3 returning", addition)
             return addition
     if (len(UCQ) == 2 and check_Independence_UCQ(UCQ)):
-        print("CASE4")
+        print("CASE4", UCQ)
         Pr = 1.0
-        for key, value in UCQ[0].items():
+        for val in UCQ:
             # print("in",[{key:value}])
-            Pr *= probability([{key: value}])
+            Pr *= probability([val])
         print("CASE4 returning", Pr)
         return Pr
     sep = (find_Separator(UCQ))
@@ -251,10 +327,10 @@ def probability(UCQ):
             UCQ1, UCQ = substitute(d, UCQ, sep)
             # print("in case 5",probability(UCQ1))
             Pr *= probability(UCQ1)
-        print("CASE5 returning", Pr)
+        print("CASE 5 returning", Pr)
         return Pr
 
-    print("UNLIFTABLE")
+    print("UNLIFTABLE", UCQ)
     return -1
 
 #fixed
@@ -319,8 +395,8 @@ def parse_tables(tablefiles):
             rows.append(row)
         probabilities[tname] = rows
     return probabilities
-print(read_query("query.txt"))
-print(parse_tables(["table1.txt", "table2.txt", "table3.txt"]))
+# print(read_query("query.txt"))
+# print(parse_tables(["table1.txt", "table2.txt", "table3.txt"]))
 # probabilities = {'R': [[[0], 0.7], [[1], 0.8], [[2], 0.6]], 'T': [[[0], 0.7], [[1], 0.3], [[2], 0.5]], 'S': [[[0, 0], 0.8], [[0, 1], 0.4], [[0, 2], 0.5], [[1, 2], 0.6], [[2, 2], 0.9]]}
 probabilities = parse_tables(["table1.txt", "table2.txt", "table3.txt"])
 domain = get_domain(probabilities)
@@ -328,8 +404,8 @@ domain = get_domain(probabilities)
 # input_query = "R(x1),S(x1,y1) ||S(x2, y2), T(x2)"
 input_query = read_query("query.txt")
 UCQ, quantifier, tables = parse_UCQ(input_query)
-print("UCQ",UCQ)
-print("")
+# print("UCQ",UCQ)
+# print("")
 # probabilities = {'S': [0.8, 0.2, 0.3], 'R': [0.3, 0.4, 0.9]}
 # probabilities = {'P': [[[0],0.7],[[1],0.8], [[2],0.6]], 'Q': [[[0],0.7],[[1],0.3], [[2],0.5]], 'R':[[[0,0],0.8],[[0,1],0.4],[[0,2],0.5],[[1,2],0.6],[[2,2],0.9]]}
 # print("domain",domain)
