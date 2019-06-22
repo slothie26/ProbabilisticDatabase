@@ -1,4 +1,5 @@
-#Probabilistic Database System
+# Probabilistic Database System
+
 The system takes as input a fully quantified
 query in first-order logic and efficiently computes
 the probability of the input query. Our probabilistic
@@ -24,7 +25,7 @@ Matplotlib 2.2.4
 The following files need to be created before the code can be successfully run.
 query.txt - holds the query string that needs to be evaluated
 table1.txt ... tablen.txt will hold each of the 'n' tables
-The format of each of the files is disucussed [here](###Formating the Input Files).
+The format of each of the files is disucussed below.
 A sample set of hese files is already created and shared in the repository.
 
 ### Formating the Input Files
@@ -39,6 +40,7 @@ Each table file represents a single table. The first line in the table file deno
 ## Running the code
 
 The example provided can be run as follows.
+
 ```probabilisticDatabase.py --query query.txt --table table1.txt --table table2.txt --table table3.txt```
 
 The number of tables included depend on the query that is being tested.
@@ -56,8 +58,11 @@ Some sample queries and their results have been shared in queries_tested.txt
 ## Contributors
 
 Vidhu Malik (Author)
+
 Vishwa Karia
+
 Zeel Doshi
+
 Vaishnavi Pendse
 
 ## References
