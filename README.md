@@ -12,8 +12,11 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 Python 3.7.1
+
 Numpy 1.14.6
+
 Scipy 1.1.0
+
 Matplotlib 2.2.4
 
 ### Setup
@@ -24,13 +27,13 @@ table1.txt ... tablen.txt will hold each of the 'n' tables
 The format of each of the files is disucussed [here](###Formating the Input Files).
 A sample set of hese files is already created and shared in the repository.
 
-###Formating the Input Files
+### Formating the Input Files
 
-####query.txt
+#### query.txt
 
 The query needs to be a UCQ: Union of quantified conjunctive queries. Each conjunctive query is seperated with '||'. Within each conjunctive query, every clause is seperated with ','.  Table names are denoted wih capital letters and represent a single clause. Every table has comma seperated variables as arguments. Variables are denoted with strings of letters starting with a lower case letter. Ultimately, the query file will contain a single query rule
 
-####table.txt
+#### table.txt
 Each table file represents a single table. The first line in the table file denotes the table name(Capital letter).  The file is organised similar to a CSV. Every line in the table represents a single tuple. Each column of each tuple is seperated with a comma. The last comumn of each tuple represents the probability that the tuple is in the database.
 
 ## Running the code
@@ -57,7 +60,7 @@ Vishwa Karia
 Zeel Doshi
 Vaishnavi Pendse
 
-##References
+## References
 [1]: Van den Broeck, Guy and Suciu, Dan. Query Processing on Probabilistic Data: A Survey. Foundations
 and Trends in Databases. Now Publishers, 2017. doi: 10.1561/1900000052
         
